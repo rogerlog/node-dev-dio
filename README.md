@@ -264,17 +264,37 @@ app.get('/', (req, res) => res.send('Olá mundo pelo Express!'))
 app.listen(port, () => console.log('Api rodando na porta 3000'))
 ```
 
+Utilizar o [Postman](https://www.postman.com/) para manipular os dados da api.
 
-
-
-
-
-
-
+Código da api [AQUI](/Introducao%20ao%20Node%20com%20Express/node-express). 
 
 - Certifique seu conhecimento
-
-
+  - Em qual arquivo são registradas as informações e dependências de um projeto em Node.js?
+    - package.json
+  - Qual linguagem de programação é usada para desenvolver aplicações em Node.js?
+    - JavaScript.
+  - Qual é o nome da pasta padrão gerada pelo NPM para armazenar o código fonte das dependências instaladas no projeto?
+    - node_modules
+  - A assincronicidade no Node.js se dá ao fato de que:
+    - Não é necessário esperar finalizar uma tarefa para iniciar outra.
+  - São características do Event Loop: 
+    I - Registro de callbacks.
+    II - Execução de tarefas síncronas de maneira assíncrona usando a libuv.
+    III - Usa o V8 do Chrome para executar tarefas bloqueantes.
+    - I e II estão corretas.
+  - Qual é o comando para iniciar um novo projeto em Node.js usando o NPM?
+    - npm init
+  - O que é o NPM?
+    - Gerenciador de pacotes e dependências de um projeto em Node.js.
+  - Quais destas afirmações estão corretas em relação ao Node.js? 
+    I - Usa a JVM do Java.
+    II - É JavaScript no servidor.
+    III - Pode ser executado em várias plataformas como Linux, Windows e Mac OS.
+    - As alternativas II e III estão corretas.
+  - O que é o Express?
+    - Framework web minimalista e rápido para Node.js.
+  - Quais são os principais métodos HTTP suportados pelo Express?
+    - GET, POST, PUT e DELETE.
 
 **Desenvolvendo ferramentas de linhas de comando**
 
