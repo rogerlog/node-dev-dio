@@ -299,14 +299,327 @@ Código da api [AQUI](/Introducao%20ao%20Node%20com%20Express/node-express).
 **Desenvolvendo ferramentas de linhas de comando**
 
 - Criando uma ferramenta com CLI
+
+**O que é uma CLI?** Ferramenta que disponibiliza uma interace de linha de comando para executar tarefas no terminal. Normalmente são criadas atraves de Shell Script.
+
+**GUI x CLI**
+
+cp *.js ~/Documents/Folder
+
+Por que criar uma CLI em NodeJs? Facilidade distribuição.
+
+Ferramentas: npm; yarn
+
+Atividade Prática: Criar api pra procurar files
+
+```js
+#!/usr/bin/env node
+const fs = require('fs')
+const { join } = require('path')
+
+const fileName = process.argv.splice(2, process.argv.length -1).join()
+
+function searchFiles(filter, startPath = '.') {
+    const files = fs.readdirSync(startPath)
+
+    files.map(filePath => {
+        const fullFilePath = join(startPath, filePath);
+        const statFilePath = fs.lstatSync(fullFilePath);
+    
+        if (statFilePath.isDirectory()) {
+            return searchFiles(filter, fullFilePath)
+        }
+
+        if (fullFilePath.indexOf(filter) !== -1) {
+            console.log(fullFilePath)
+        }
+    })
+}
+
+searchFiles(fileName)
+```
+
+
+
+Link simbólico
+
+```shell
+npm link
+```
+
+```shell
+search-files .json
+```
+
+Pacotes publicados
+
+npmjs.com
+
+Na raiz do projeto
+
+```shell
+npm adduser
+```
+
+Publicando no site npm
+
+```shell
+npm publish
+```
+
 - Aprenda a trabalhar com Commander.js
+
+**O que é o Commander.js?**
+
+Ferramenta completa para criação de CLIs em Node.js. Definição de comandos, parâmetro de opções e execução de ações. Descrição para cada comando e menu de ajuda com exemplos de uso.
+
+*Atividade Prática*
+
+Criar uma ferramenta que mostra o clima atual de uma cidade pelo nome. Utilizando a API do ClimaTempo
+
+Fazer login em https://advisor.climatempo.com.br/
+
+cli.js
+
+```js
+import program from 'commander'
+import { version } from '../package.json'
+import getForecast from './main'
+import { saveApiToken } from './utils/apiToken'
+
+export function init(args) {
+    
+    program
+        .version(version, '-v, --version', 'Mostra a versão da ferramenta')
+        .option('-t --token [token]', 'Advisor ClimaTempo API token')
+        .arguments('<cityName...>')
+        .description('Mostra o clima de uma cidade em tempo real')
+        .action(async (cityName) => {
+            if (program.token) {
+                await saveApiToken(program.token)
+            }
+            getForecast(cityName.join(' '))
+        })
+        .on('--help', () => {
+            console.log()
+            console.log('Exemplos:')
+            console.log('$ clima porto alegre')
+            console.log('$ clima são paulo')
+        })
+
+    program.parse(args)
+}
+```
+
+Commander github
+
+https://github.com/tj/commander.js/
+
+- Certifique seu conhecimento
+  - Grunt, Gulp e Webpack são exemplos de:
+    - CLIs em Node.
+  - O que é uma CLI?
+    - Interface de linha de comando para executar tarefas no terminal.
+  - Em relação ao Commander.js: 
+    I - É executado no cliente.
+    II - Ajuda no desenvolvimento de CLIs.
+    III - Permite adicionar uma descrição para cada comando disponível.
+    - II e III estão corretas.
+  - Qual o comando usado para publicar uma CLI no NPM?
+    - npm publish
+  - Qual é o comando usado para publicar sua CLI no NPM?
+    - npm publish
+  - Qual o comando NPM para instalar a CLI localmente para testes?
+    - npm link
+  - No arquivo package.json, em qual campo é informado o nome do comando que será usado pela CLI?
+    - bin
+  - Como adicionar parâmetros em um comando no terminal?
+    - $ comando --nome-parametro valor
+  - Em relação às CLIs: 
+    I - Podem ser distribuídas facilmente.
+    II - Só funcionam em ambientes Unix.
+    III - Podem ser instaladas globalmente no sistema operacional.
+    - I e III estão corretas.
+  - Qual opção é usada para adicionar um comando no Commander.js?
+    - .command(‘...’)
+
+**Criação de templates com Pug**
+
+- Como usar o Pug em projetos
+
+O que é o Pug? É uma template engine de alta performance, com JS e Node.js e Browsers. Conhecido anteriormente como Jade
+
+https://pugjs.org
+
+*Prós*
+
+> Escrever mais HTML com menos código
+>
+> Código parecido com parágrafos
+>
+> Não há fechamentos de tags
+>
+> Escrever js no pug
+
+*Contras*
+
+> Espaços em brancos importam. Mínimo erro de indentação pode trazer grandes problemas
+>
+> Não é possível usar codigo HTML de qualquer lugar
+
+*Atividade Prática*
+
+```shell
+npm start
+npm run build
+```
+
+- Integrando Pug com Express
+
+> Uma template engine possibilita o uso de arquivos de template estático na sua aplicação.
+>
+> Em tempo de execução, variáveis dentro desse template podem ser substituídas por valores reais.
+>
+> Transforma o template em HTML e manda para o client
+>
+> Facilita o desenvolvimento de páginas HTML dinâmicas usando conteúdo estático.
+
+index.js
+
+```js
+import express from 'express'
+import posts from './data/posts.json'
+
+const app = express()
+const port = 3000
+
+app.set('views', './src/templates')
+app.set('view engine', 'pug')
+app.get('/', (req, res) => {
+    res.render('index', {
+        message: 'Bem vindo ao site que usa o Pug com Express!'
+    })
+})
+
+app.get('/sobre', (req, res) => res.render('sobre'))
+app.get('/contato', (req, res) => res.render('contato'))
+app.get('/posts', (req, res) => res.render('posts', {
+    posts
+}))
+
+app.listen(port, () => console.log(`App rodando na porta ${port}...`))
+
+```
+
+layout.pug
+
+```pug
+- var siteName = 'Meu template com Pug'
+
+doctype html
+html.h-100(lang='pt-br')
+    
+    head
+        meta(charset='utf-8')
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+        link(href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T", crossorigin="anonymous")
+        style.
+            main > .container {
+                padding: 60px 15px 0;
+            }
+
+            .footer {
+                background-color: #f5f5f5;
+            }
+
+            .footer > .container {
+                padding-right: 15px;
+                padding-left: 15px;
+            }
+
+        block head
+            title #{siteName} - #{title}
+
+    body.d-flex.flex-column.h-100
+        header    
+            nav.navbar.navbar-expand-md.navbar-dark.fixed-top.bg-dark
+                a.navbar-brand(href='/') #{siteName}
+                #navbarCollapse.collapse.navbar-collapse
+                    ul.navbar-nav.mr-auto
+                        li.nav-item
+                            a.nav-link(href='/') Início
+                        li.nav-item
+                            a.nav-link(href='/sobre') Sobre
+                        li.nav-item
+                            a.nav-link(href='/posts') Posts
+                        li.nav-item
+                            a.nav-link(href='/contato') Contato
+
+        main.flex-shrink-0(role="main")
+            block content
+        
+        include footer
+```
+
+Iniciar a aplicação
+
+```shell
+npm start
+```
+
 - Certifique seu conhecimento
 
+  - A integração do Pug com o Express permite que:
 
+    - Substituir, em tempo de execução, variáveis dentro dos templates por valores reais.
 
+  - Leia as sentenças e assinale a alternativa correta sobre algumas das vantagens em relação ao uso do Pug.
+    I - Não é necessário o fechamento das tags.
+    II - É possível mesclar código HTML com Pug.
+    III - Usar JavaScript dentro de um template Pug.
 
+    - I e III estão corretas.
 
+  - Qual o resultado do seguinte comando usando a CLI do Pug:
 
+    	pug templates/*.pug --pretty --out ./build
+
+    - Transforma todos os arquivos da pasta “templates” com a extensão .pug em HTML e salva os arquivos HTML na pasta “build” com indentação.
+
+  - Veja as sentenças abaixo e assinale a alternativa correta. São desvantagens em relação ao uso do Pug:
+    I - Escrever menos HTML com mais código.
+    II - Não é possível usar código HTML em um template Pug.
+    III - Sua performance é baixa, o que torna a aplicação mais lenta.
+
+    - Apenas II está correta.
+
+  - Fazendo a integração com o Pug, o Express é capaz de?
+
+    - Transformar o template Pug em HTML e mandar para o client.
+
+  - Qual trecho de código é usado para informar a pasta dos templates do Pug ao Express?
+
+    - app.set('views', './templates')
+
+  - Qual função é usada em uma rota no Express para renderizar um template Pug?
+
+    - res.render()
+
+  - O seguinte código Pug irá gerar qual saída em HTML:
+
+    h1.header.title Minha Página
+
+    - `<h1 class=”header title”>Minha Página</h1>`
+
+  - O que é o Pug?
+
+    - É uma template engine de alta performance implementado com JavaScript
+
+  - Anteriormente o Pug era conhecido como:
+
+    - Jade.
+
+    ​	
 
 <br><br><br>
 
