@@ -2,23 +2,23 @@
 
 Anotações das atividades do Bootcamp. :pencil2::books:
 
-- [Criando um repositório para seus projetos inovadores](#criando-um-repositório-para-seus-projetos-inovadores)
+- [x] [Criando um repositório para seus projetos inovadores](#criando-um-repositório-para-seus-projetos-inovadores)
 
-- [Introdução ao Node.js com Express](#introdução-ao-nodejs-com-express)
+- [x] [Introdução ao Node.js com Express](#introdução-ao-nodejs-com-express)
 
-- [Arquitetura de Sistemas Avançado](#arquitetura-de-sistemas-avançado)
+- [ ] [Arquitetura de Sistemas Avançado](#arquitetura-de-sistemas-avançado)
 
-- [Arquitetura interna no Node e filas](#arquitetura-interna-no-node-e-filas)
+- [x] [Arquitetura interna no Node e filas](#arquitetura-interna-no-node-e-filas)
 
-- [Tarefas em background utilizando Node.js e Redis](#tarefas-em-background-utilizando-nodejs-e-redis)
+- [x] [Tarefas em background utilizando Node.js e Redis](#tarefas-em-background-utilizando-nodejs-e-redis)
 
-- [Construindo sexy APIs usando arquitetura serverless](#construindo-sexy-apis-usando-arquitetura-serverless)
+- [ ] [Construindo sexy APIs usando arquitetura serverless](#construindo-sexy-apis-usando-arquitetura-serverless)
 
-- [Introdução ao domain driven design e padrões de arquitetura](#introdução-ao-domain-driven-design-e-padrões-de-arquitetura)
+- [x] [Introdução ao domain driven design e padrões de arquitetura](#introdução-ao-domain-driven-design-e-padrões-de-arquitetura)
 
-- [Desenvolvimento back-end com Node.js](#desenvolvimento-back-end-com-nodejs)
+- [ ] [Desenvolvimento back-end com Node.js](#desenvolvimento-back-end-com-nodejs)
 
-- [Construindo um ChatbotFit no Telegram com Javascript e NodeJs](#construindo-um-chatbotfit-no-telegram-com-javascript-e-nodejs)
+- [ ] [Construindo um ChatbotFit no Telegram com Javascript e NodeJs](#construindo-um-chatbotfit-no-telegram-com-javascript-e-nodejs)
 
   
 
@@ -685,7 +685,164 @@ CloudAMQP
 
 *Notas da aula*
 
+Criando o projeto
 
+Redis pelo docker
+
+```shell
+systemctl start docker
+docker run --name redis -p 6379:6379 -d -t redis:alpine
+```
+
+Iniciar a aplicação
+
+```shell
+yarn init -y
+
+yarn add express nodemailer dotenv
+yarn add nodemon sucrase -D
+```
+
+Criar arquivo nodemon.json na raiz do projeto
+
+```json
+{
+    "execMap": {
+        "js": "sucrase-node"
+    }
+}
+```
+
+package.json
+
+```json
+{
+  "name": "tarefas-redis-background-redis",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/rogerlog/tarefas-redis-background-redis.git",
+  "author": "Roger <logroger@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "nodemailer": "^6.4.17"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7",
+    "sucrase": "^3.17.1"
+  }
+}
+```
+
+Criar src/server.js
+
+```js
+import 'dotenv/config';
+import express from 'express';
+
+const app = express();
+app.use(express.json());
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on the ${process.env.PORT}`)
+});
+```
+
+Variáveis de ambiente .env
+
+```env
+PORT=8080
+```
+
+Testando a aplicação
+
+```shell
+yarn start
+```
+
+Criando pasta src/app/controllers/UserController.js
+
+```js
+export default {
+    async StorageEvent(req, res) {
+        const {name, email} = req.body;
+
+        const user = {
+            name,
+            email, password: '123'
+        };
+
+        return res.json(user);
+    }
+}
+```
+
+Adicionando a biblioteca `password-generator`
+
+```shell
+yarn add password-generator
+```
+
+Criação do arquivo /src/app/lib/Mail.js
+
+Ferramenta para envio de email
+
+mailtrap.io
+
+Arquivo UserController.js
+
+```js
+import passwordGenerator from 'password-generator';
+import Mail from '../lib/Mail';
+
+export default {
+    async StorageEvent(req, res) {
+        const {name, email} = req.body;
+
+        const user = {
+            name,
+            email, 
+            password: passwordGenerator(15, false)
+        };
+
+        await Mail.sendMail({
+            from: 'ROGER <rogerlog@id.uff.br>',
+            to: `${name} <${email}>`,
+            subject: 'Cadastro de Usuário',
+            html: `Olá, ${name}, bem-vindo!`
+        })
+
+        return res.json(user);
+    }
+}
+```
+
+No postman enviar POST
+
+http://localhost:8080/users
+
+```json
+{
+    "name": "Roger",
+    "email": "logroger@gmail.com"
+}
+```
+
+Criar fila no Redis
+
+Bull
+
+```shell
+yarn add bull
+yarn add bull-board
+```
+
+Monitorar falhas
+
+https://sentry.io/welcome/
 
 
 
@@ -722,6 +879,121 @@ CloudAMQP
 <br>
 
 *Notas da aula*
+
+Referências
+
+- https://medium.com/@gabriel_faraday
+
+
+
+#### Arquitetura de Software
+
+> Arquitetura define Estrutura
+>
+> Arquitetura define Comportamento
+>
+> Necessidades do StakeHolders
+>
+> Influenciada pelo Ambiente
+>
+> Influencia a estrutura do time.
+>
+> Custo, manutenibilidade, performance, estabilidade.
+
+<u>Desgin de Softwate</u>
+
+Atividades transformação da necessidade de negócio em software funcionamento
+
+Estilos Arquiteturais
+
+> - Camadas
+> - Microserviços
+> - Pipes and Filters
+> - Plugins
+> - Client/Server
+> - etc.
+
+Padrões Arquiteturais
+
+> - MVC
+> - CQRS
+> - Event Sourcing
+> - 3 camadas
+> - Onion
+> - Clean
+> - Hexagonal
+> - Etc.
+
+#### Arquitetura DDD
+
+*Não existe arquitetura DDD*
+
+O que é DDD afinal?
+
+Não é sobre arquitetura, é sobre design, é sobre como você aborda o neǵocio para criação do software. Aplicações complexas. Simples de enteder e muito dificil de aplicar.
+
+DDD é sobre negócio, não é uma tecnologia, é o jeito como faz as coisas.
+
+LIngagem Ambigua > Linguagem comum no ambiente que está trabalhando.
+
+*Obs: Maintaining Model Integrity*
+
+#### Camadas DDD? Padrões
+
+Arquitetura em Camadas: Onion Architecture
+
+- Jeffrey Palermo
+- Dependencia de fora para dentro
+- Não é indicada para pequenos websites.
+
+Hexagonal Arquitecture: Alistai Cockburn
+
+Clean Archietectur: robert C. Martin
+
+#### Por que não simplificar?
+
+API 🠖 Business 🠖 DATA ACCESS
+
+API 🠖 **Business** 🠔 DATA ACCESS
+
+#### Arquitetura Emergente
+
+*Nps lugares onde os aspectos arquiteturaus são levadas a sério como imprescindíveis para o sucesso de qualquer projeto é cada vez mais consenso de que a maneira tradicional de arquitetar sistemas não está provendo todo o valor que deveria.*
+
+Problemas do modelo tradicional
+
+- Código inutil
+- Over-engineering
+- Código embaraçoso
+- Complexidade de manutenção
+
+#### Arquitetura Emergente vs Agile Manifesto
+
+*Responder a mudanças mais que seguir um plano.*
+
+> **Indivíduos e interações** mais que processos e ferramentas
+> **Software em funcionamento** mais que documentação abrangente
+> **Colaboração com o cliente** mais que negociação de contratos
+> **Responder a mudanças** mais que seguir um plano
+
+#### Arquitetura Emergente vs Agile Principles
+
+- Mudanças nos requisitos são bem-vindas, mesmo tardialmente no desenvolvimento.
+- Software funcionando é a medida primária de progresso.
+- Simplicidade (a arte de maximizar a quantidade de trabalho não realizado) é essencial
+- As melhores arquiteturas, requisitos e designs emergem de equipes auto-organizáveis.
+- Contínua atenção à excelência técnica e bom design aumenta a agilidade.
+
+#### Concluindo
+
+- Arquitetura e Design de Software são coisas distintas
+- DDD não é sobre arquitetura
+- DDD é sobre negócio
+- DDD é sobre design
+- DDD não é fazer software em camadas
+- Em um "mundo Ágil" trabalhar com Arquitetura Emergente faz muito mais sentido
+- Arquitetura Emergente (assim como Agil) não é fazer de qualquer jeito
+- Arquitetura Emergente (assim como Agil) não significa não ter um plano
 
 
 
